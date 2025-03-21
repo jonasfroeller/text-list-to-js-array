@@ -1,5 +1,5 @@
 import React from 'react';
-import { ClipboardCopy, Settings2, Link2 } from 'lucide-react';
+import { ClipboardCopy, Link2 } from 'lucide-react';
 
 type ArrayFormat = 'simple' | 'quoted' | 'template' | 'markdown';
 
@@ -26,7 +26,14 @@ function App() {
       case 'template':
         return `[\n  ${lines.map(line => `\`${line.replace(/`/g, '\\`')}\``).join(',\n  ')}\n]`;
       case 'markdown':
-        return lines.map(line => `- [${new URL(line).hostname}](${line})`).join('\n');
+        return lines.map(line => {
+          try {
+            const url = new URL(line);
+            return `- [${url.hostname}](${line})`;
+          } catch {
+            return `- ${line}`;
+          }
+        }).join('\n');
       default:
         return '[]';
     }
@@ -40,11 +47,11 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-50 p-6">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+    <div className="p-6 min-h-screen bg-gradient-to-br from-indigo-50 to-blue-50">
+      <div className="mx-auto max-w-4xl">
+        <div className="p-6 bg-white rounded-xl shadow-lg">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="flex gap-2 items-center text-2xl font-bold text-gray-800">
               <Link2 className="w-6 h-6 text-indigo-600" />
               Text Rows to JS Array Converter
             </h1>
@@ -52,7 +59,7 @@ function App() {
               <select
                 value={format}
                 onChange={(e) => setFormat(e.target.value as ArrayFormat)}
-                className="px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="px-3 py-2 text-sm bg-white rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
                 <option value="simple">Simple Array</option>
                 <option value="quoted">Single Quotes</option>
@@ -63,8 +70,8 @@ function App() {
                 onClick={handleCopy}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   copied
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                    ? 'text-green-700 bg-green-100'
+                    : 'text-white bg-indigo-600 hover:bg-indigo-700'
                 }`}
               >
                 <ClipboardCopy className="w-4 h-4" />
@@ -73,7 +80,7 @@ function App() {
             </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">
                 Input URLs (one per line or comma-separated)
